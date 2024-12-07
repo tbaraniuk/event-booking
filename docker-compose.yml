@@ -1,0 +1,35 @@
+version: '3.5'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: event-booking
+    environment:
+      - PORT=${PORT}
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:${DB_HOST}/${DB_MODEL}?schema=public
+    env_file:
+      - '.env'
+    ports:
+      - '${PORT}:${PORT}'
+    depends_on:
+      - db
+    restart: always
+    volumes:
+      - ./src:/app/src
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_MODEL}
+    env_file:
+      - '.env'
+    container_name: postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
