@@ -14,7 +14,7 @@ describe('BookingController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BookingController],
-      providers: [BookingService, ClientAuthGuard, JwtService],
+      providers: [BookingService, ClientAuthGuard, JwtService, PrismaService],
     })
       .overridePipe(PrismaService)
       .useValue(prismaServiceMock)
