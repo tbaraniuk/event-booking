@@ -68,6 +68,10 @@ export class AuthService {
 
     const { password, ...clientData } = newClient;
 
+    if (!password) {
+      console.warn('Password is missing from client data');
+    }
+
     return {
       access_token: await this.jwtService.signAsync(payload),
       data: clientData,
