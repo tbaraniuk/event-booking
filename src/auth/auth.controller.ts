@@ -3,6 +3,7 @@ import { ApiOkResponse } from '@nestjs/swagger';
 
 import {
   AccessTokenDto,
+  ClientSignInDto,
   CreateClientDto,
   RegisterClientResponseDto,
   SignInDto,
@@ -15,7 +16,7 @@ export class AuthController {
 
   @Post('login/user')
   @ApiOkResponse({
-    description: 'Access token',
+    description: 'User access token',
     type: AccessTokenDto,
   })
   async userSignIn(@Body() signInDto: SignInDto) {
@@ -26,9 +27,15 @@ export class AuthController {
   }
 
   @Post('login/client')
-  @ApiOkResponse()
-  async signClientIn() {
-    return {};
+  @ApiOkResponse({
+    description: 'Client access token',
+    type: AccessTokenDto,
+  })
+  async signClientIn(@Body() clientSignInDto: ClientSignInDto) {
+    return this.authService.clientSignIn(
+      clientSignInDto.email,
+      clientSignInDto.password,
+    );
   }
 
   @Post('register/client')

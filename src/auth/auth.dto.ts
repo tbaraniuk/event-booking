@@ -9,6 +9,14 @@ export class SignInDto {
   password: string;
 }
 
+export class ClientSignInDto {
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  password: string;
+}
+
 export class AccessTokenDto {
   @ApiProperty()
   access_token: string;

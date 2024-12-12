@@ -34,6 +34,29 @@ export class AuthService {
     };
   }
 
+  async clientSignIn(
+    email: string,
+    pass: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.clientsService.findByEmail(email);
+
+    const isPasswordMatch = await bcrypt.compare(pass, user.password);
+
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException();
+    }
+
+    const payload = {
+      pub: user.id,
+      username: user.username,
+      email: user.email,
+    };
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
+  }
+
   async registerClient(createClientDto: CreateClientDto) {
     const newClient = await this.clientsService.createClient(createClientDto);
 
@@ -43,9 +66,11 @@ export class AuthService {
       email: newClient.email,
     };
 
+    const { password, ...clientData } = newClient;
+
     return {
       access_token: await this.jwtService.signAsync(payload),
-      data: newClient,
+      data: clientData,
     };
   }
 }

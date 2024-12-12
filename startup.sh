@@ -1,9 +1,7 @@
 #!/bin/sh
 
-npx prisma init
 npx prisma generate
-npx prisma migrate dev
-npx prisma db pull
+npx prisma migrate deploy
 npx prisma db push
 
 npm run build
