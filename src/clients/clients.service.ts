@@ -26,7 +26,7 @@ export class ClientsService {
         username: true,
         email: true,
         phone: true,
-        password: false,
+        password: true,
         booking: true,
         createdAt: true,
       },
