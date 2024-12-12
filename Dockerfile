@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN chmod +x ./startup.sh
+RUN chmod +x ./startup.dev.sh
 
-CMD ["./startup.sh"]
+CMD ["./startup.dev.sh"]

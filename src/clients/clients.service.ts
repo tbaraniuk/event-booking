@@ -19,6 +19,20 @@ export class ClientsService {
     });
   }
 
+  async getClients() {
+    return await this.prisma.client.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        phone: true,
+        password: false,
+        booking: true,
+        createdAt: true,
+      },
+    });
+  }
+
   async createClient(createClientDto: CreateClientDto) {
     const { username, email, phone, password } = createClientDto;
     const findExistedClient = await this.findByEmail(email);

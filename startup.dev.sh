@@ -8,4 +8,6 @@ npm run build
 
 npx nestjs-command create:admin
 
+npm run seed
+
 npm run start:dev
