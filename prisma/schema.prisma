@@ -17,8 +17,11 @@ model Event {
   capacity     Int?
   type         EventType
   price        Int       @default(0)
-  bookings     Booking[]
   createdAt    DateTime  @default(now())
+
+  bookings     Booking[]
+  createdBy    Int
+  author       User @relation(fields: [createdBy], references: [id])
 }
 
 model User {
@@ -28,6 +31,8 @@ model User {
   password  String
   role      UserType @default(MANAGER)
   createdAt DateTime @default(now())
+
+  events    Event[]
 }
 
 model Client {
@@ -37,6 +42,7 @@ model Client {
   phone     String    @unique
   password  String
   createdAt DateTime  @default(now())
+
   booking   Booking[]
 }
 

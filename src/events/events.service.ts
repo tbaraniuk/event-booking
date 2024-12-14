@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { EventType } from '@prisma/client';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { EventType, UserType } from '@prisma/client';
 
 import { PrismaService } from '../prisma.service';
 import { CreateEventDto } from './event.dto';
@@ -55,25 +55,56 @@ export class EventsService {
     };
   }
 
-  async createEvent(data: CreateEventDto) {
+  async createEvent(data: CreateEventDto, userId: number) {
     return await this.prisma.event.create({
-      data,
+      data: { ...data, createdBy: userId },
     });
   }
 
-  async updateEvent(id: string, data: CreateEventDto) {
+  async updateEvent(
+    id: string,
+    data: CreateEventDto,
+    userId: number,
+    userRole: UserType,
+  ) {
+    const event = await this.prisma.event.findUniqueOrThrow({
+      where: {
+        id: +id,
+      },
+    });
+
+    if (userRole !== UserType.ADMIN && event.createdBy !== userId) {
+      throw new BadRequestException(
+        'You do not have permission to edit this event.',
+      );
+    }
+
     return await this.prisma.event.update({
       where: {
         id: +id,
+        ...(userRole == UserType.ADMIN ? {} : { createdBy: userId }),
       },
       data: { ...data },
     });
   }
 
-  async deleteEvent(id: string) {
+  async deleteEvent(id: string, userId: number, userRole: UserType) {
+    const event = await this.prisma.event.findUniqueOrThrow({
+      where: {
+        id: +id,
+      },
+    });
+
+    if (userRole !== UserType.ADMIN && event.createdBy !== userId) {
+      throw new BadRequestException(
+        'You do not have permission to delete this event.',
+      );
+    }
+
     await this.prisma.event.delete({
       where: {
         id: +id,
+        ...(userRole == UserType.ADMIN ? {} : { createdBy: userId }),
       },
     });
   }

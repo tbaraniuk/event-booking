@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -59,12 +60,18 @@ export class EventsController {
   @UseGuards(UserAuthGuard)
   @ApiBearerAuth('JWT')
   async createEvent(
+    @Request() req,
     @Body()
     eventData: CreateEventDto,
   ) {
-    await this.eventsService.createEvent({
-      ...eventData,
-    });
+    const userId = req.user.sub;
+
+    await this.eventsService.createEvent(
+      {
+        ...eventData,
+      },
+      userId,
+    );
   }
 
   @Put('/:id')
@@ -74,8 +81,14 @@ export class EventsController {
     name: 'id',
     type: 'number',
   })
-  async updateEvent(@Param('id') id: string, @Body() data: CreateEventDto) {
-    return await this.eventsService.updateEvent(id, data);
+  async updateEvent(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() data: CreateEventDto,
+  ) {
+    const userId = req.user.sub;
+    const userRole = req.user.role;
+    return await this.eventsService.updateEvent(id, data, userId, userRole);
   }
 
   @Delete('/:id')
@@ -85,7 +98,9 @@ export class EventsController {
     name: 'id',
     type: 'number',
   })
-  async deleteEvent(@Param('id') id: string) {
-    await this.eventsService.deleteEvent(id);
+  async deleteEvent(@Request() req, @Param('id') id: string) {
+    const userId = req.user.sub;
+    const userRole = req.user.role;
+    await this.eventsService.deleteEvent(id, userId, userRole);
   }
 }

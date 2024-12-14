@@ -3,8 +3,9 @@ import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
-const fakerEvent = () => {
+const fakerEvent = (createdBy) => {
   const max_capacity = faker.number.int({ min: 10, max: 40 });
+
   return {
     name: faker.lorem.words({ min: 1, max: 5 }),
     description: faker.lorem.sentences({ min: 1, max: 8 }),
@@ -14,6 +15,7 @@ const fakerEvent = () => {
     capacity: max_capacity,
     type: EventType.OFFLINE,
     price: faker.number.int({ min: 0, max: 1000 }),
+    createdBy: createdBy,
   };
 };
 
@@ -28,8 +30,10 @@ async function main() {
   const fakerEventRound = 40;
   console.log('Seeding...');
 
+  const admin = await prisma.user.findFirst({ where: { username: 'admin' } });
+
   for (let i = 0; i < fakerEventRound; i++) {
-    await prisma.event.create({ data: fakerEvent() });
+    await prisma.event.create({ data: fakerEvent(admin.id) });
   }
 }
 
