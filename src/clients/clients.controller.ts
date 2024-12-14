@@ -1,10 +1,11 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 
 import { ClientAuthGuard } from '../auth/guards/client-auth.guard';
-import { GetClientDto } from './client.dto';
+import { GetClientDto, GetPaginatedClientsDto } from './client.dto';
 import { ClientsService } from './clients.service';
 import { UserAuthGuard } from '../auth/guards/user-auth.guard';
+import { PaginationDto } from '../common/common.dto';
 
 @Controller('clients')
 @ApiBearerAuth('JWT')
@@ -15,10 +16,12 @@ export class ClientsController {
   @UseGuards(UserAuthGuard)
   @ApiOkResponse({
     description: 'Get all clients',
-    type: [GetClientDto],
+    type: GetPaginatedClientsDto,
   })
-  async getClients() {
-    return await this.clientsService.getClients();
+  async getClients(
+    @Query() paginationDto?: PaginationDto,
+  ): Promise<GetPaginatedClientsDto> {
+    return await this.clientsService.getClients(paginationDto);
   }
 
   @Get('profile')

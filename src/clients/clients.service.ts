@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { CreateClientDto } from '../auth/auth.dto';
 import { PrismaService } from '../prisma.service';
+import { PaginationDto } from '../common/common.dto';
 
 @Injectable()
 export class ClientsService {
@@ -19,18 +20,31 @@ export class ClientsService {
     });
   }
 
-  async getClients() {
-    return await this.prisma.client.findMany({
+  async getClients(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    const clients = await this.prisma.client.findMany({
       select: {
         id: true,
         username: true,
         email: true,
         phone: true,
-        password: true,
+        password: false,
         booking: true,
         createdAt: true,
       },
+      skip: (+page - 1) * +limit,
+      take: +limit,
     });
+
+    const totalClients = await this.prisma.client.count({});
+
+    return {
+      pagination: {
+        total: totalClients,
+      },
+      data: clients,
+    };
   }
 
   async createClient(createClientDto: CreateClientDto) {
@@ -57,6 +71,19 @@ export class ClientsService {
     return await this.prisma.client.findUnique({
       where: {
         id: clientId,
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        phone: true,
+        password: false,
+        booking: {
+          include: {
+            event: true,
+          },
+        },
+        createdAt: true,
       },
     });
   }

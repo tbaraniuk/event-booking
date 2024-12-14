@@ -29,5 +29,24 @@ export class EventDto extends CreateEventDto {
   id: number;
 
   @ApiProperty()
+  capacity: number;
+
+  @ApiProperty()
   createdAt: Date;
+}
+
+export class GetPaginatedEventsDto {
+  @ApiProperty({
+    description: 'Array of event objects',
+    type: [EventDto],
+  })
+  data: EventDto[];
+
+  @ApiProperty({
+    description: 'Pagination information',
+    type: Object,
+  })
+  pagination: {
+    total: number;
+  };
 }

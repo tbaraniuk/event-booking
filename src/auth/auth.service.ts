@@ -21,6 +21,8 @@ export class AuthService {
   ): Promise<{ access_token: string }> {
     const user = await this.usersService.findOne(username);
 
+    console.log('user', user);
+
     const isPasswordMatch = await bcrypt.compare(pass, user.password);
 
     if (!isPasswordMatch) {
@@ -47,7 +49,7 @@ export class AuthService {
     }
 
     const payload = {
-      pub: user.id,
+      sub: user.id,
       username: user.username,
       email: user.email,
     };

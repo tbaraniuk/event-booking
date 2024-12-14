@@ -27,3 +27,10 @@ export class GetClientDto {
   @ApiProperty()
   phone: string;
 }
+
+export class GetPaginatedClientsDto {
+  pagination: {
+    total: number;
+  };
+  data: GetClientDto[];
+}

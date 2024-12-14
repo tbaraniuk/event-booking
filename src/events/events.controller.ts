@@ -18,8 +18,9 @@ import {
 import { EventType } from '@prisma/client';
 
 import { UserAuthGuard } from '../auth/guards/user-auth.guard';
-import { CreateEventDto, EventDto } from './event.dto';
+import { CreateEventDto, GetPaginatedEventsDto } from './event.dto';
 import { EventsService } from './events.service';
+import { PaginationDto } from '../common/common.dto';
 
 @Controller('events')
 export class EventsController {
@@ -28,7 +29,7 @@ export class EventsController {
   @Get('/')
   @ApiOkResponse({
     description: 'Array of event objects',
-    type: [EventDto],
+    type: GetPaginatedEventsDto,
   })
   @ApiQuery({
     name: 'location',
@@ -45,8 +46,13 @@ export class EventsController {
   async getEvents(
     @Query('location') location?: string,
     @Query('type') type?: EventType,
-  ): Promise<EventDto[]> {
-    return await this.eventsService.getNearestEvents(location, type);
+    @Query() paginationDto?: PaginationDto,
+  ): Promise<GetPaginatedEventsDto> {
+    return await this.eventsService.getNearestEvents(
+      location,
+      type,
+      paginationDto,
+    );
   }
 
   @Post('/')
@@ -68,8 +74,8 @@ export class EventsController {
     name: 'id',
     type: 'number',
   })
-  async updateEvent(@Param() id: number, @Body() data: CreateEventDto) {
-    await this.eventsService.updateEvent(id, data);
+  async updateEvent(@Param('id') id: string, @Body() data: CreateEventDto) {
+    return await this.eventsService.updateEvent(id, data);
   }
 
   @Delete('/:id')
@@ -79,7 +85,7 @@ export class EventsController {
     name: 'id',
     type: 'number',
   })
-  async deleteEvent(@Param() id: number) {
+  async deleteEvent(@Param('id') id: string) {
     await this.eventsService.deleteEvent(id);
   }
 }
