@@ -56,6 +56,20 @@ export class EventsController {
     );
   }
 
+  @Post('/cancel/:id')
+  @UseGuards(UserAuthGuard)
+  @ApiBearerAuth('JWT')
+  @ApiParam({
+    name: 'id',
+    type: 'number',
+  })
+  async cancelEvent(@Request() req, @Param('id') eventId: string) {
+    const userId = req.user.sub;
+    const userRole = req.user.role;
+
+    return await this.eventsService.cancelEvent(eventId, userId, userRole);
+  }
+
   @Post('/')
   @UseGuards(UserAuthGuard)
   @ApiBearerAuth('JWT')
@@ -66,7 +80,7 @@ export class EventsController {
   ) {
     const userId = req.user.sub;
 
-    await this.eventsService.createEvent(
+    return await this.eventsService.createEvent(
       {
         ...eventData,
       },
@@ -88,6 +102,7 @@ export class EventsController {
   ) {
     const userId = req.user.sub;
     const userRole = req.user.role;
+
     return await this.eventsService.updateEvent(id, data, userId, userRole);
   }
 

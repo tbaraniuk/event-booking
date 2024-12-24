@@ -12,7 +12,7 @@ export class EventsService {
   async getNearestEvents(
     location?: string,
     type?: EventType,
-    paginationDto?: PaginationDto,
+    paginationDto: PaginationDto = { page: 1, limit: 10 },
   ) {
     const { page, limit } = paginationDto;
 
@@ -56,24 +56,23 @@ export class EventsService {
   }
 
   async createEvent(data: CreateEventDto, userId: number) {
+    if (new Date(data.date).getTime() <= Date.now()) {
+      throw new Error('The date should be greater than current');
+    }
+
     return await this.prisma.event.create({
-      data: { ...data, createdBy: userId },
+      data: { ...data, capacity: data.max_capacity, createdBy: userId },
     });
   }
 
-  async updateEvent(
-    id: string,
-    data: CreateEventDto,
-    userId: number,
-    userRole: UserType,
-  ) {
+  async cancelEvent(id: string, userId: string, userRole: string) {
     const event = await this.prisma.event.findUniqueOrThrow({
       where: {
         id: +id,
       },
     });
 
-    if (userRole !== UserType.ADMIN && event.createdBy !== userId) {
+    if (userRole !== UserType.ADMIN && event.createdBy !== +userId) {
       throw new BadRequestException(
         'You do not have permission to edit this event.',
       );
@@ -82,7 +81,36 @@ export class EventsService {
     return await this.prisma.event.update({
       where: {
         id: +id,
-        ...(userRole == UserType.ADMIN ? {} : { createdBy: userId }),
+        ...(userRole == UserType.ADMIN ? {} : { createdBy: +userId }),
+      },
+      data: {
+        canceled: true,
+      },
+    });
+  }
+
+  async updateEvent(
+    id: string,
+    data: CreateEventDto,
+    userId: string,
+    userRole: UserType,
+  ) {
+    const event = await this.prisma.event.findUniqueOrThrow({
+      where: {
+        id: +id,
+      },
+    });
+
+    if (userRole !== UserType.ADMIN && event.createdBy !== +userId) {
+      throw new BadRequestException(
+        'You do not have permission to edit this event.',
+      );
+    }
+
+    return await this.prisma.event.update({
+      where: {
+        id: +id,
+        ...(userRole == UserType.ADMIN ? {} : { createdBy: +userId }),
       },
       data: { ...data },
     });

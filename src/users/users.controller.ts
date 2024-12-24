@@ -7,12 +7,14 @@ import {
   UseGuards,
   Get,
   Request,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { UserAuthGuard } from '../auth/guards/user-auth.guard';
 import { UsersService } from './users.service';
 import { Admin } from '../auth/roles.decorator';
 import { CreateUserDto, UserDto } from './user.dto';
+import { PaginationDto } from '../common/common.dto';
 
 @Controller('users')
 @UseGuards(UserAuthGuard)
@@ -23,8 +25,8 @@ export class UsersController {
   @Get('')
   @Admin()
   @ApiOkResponse({ description: 'Array of user objects', type: [UserDto] })
-  async getUsers(): Promise<UserDto[]> {
-    return await this.usersService.getAllUsers();
+  async getUsers(@Query() paginationDto?: PaginationDto): Promise<UserDto[]> {
+    return await this.usersService.getAllUsers(paginationDto);
   }
 
   @Get('profile')

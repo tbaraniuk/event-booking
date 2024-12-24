@@ -32,6 +32,9 @@ export class EventDto extends CreateEventDto {
   capacity: number;
 
   @ApiProperty()
+  canceled: boolean;
+
+  @ApiProperty()
   createdAt: Date;
 }
 

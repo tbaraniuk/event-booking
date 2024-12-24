@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto } from './user.dto';
+import { PaginationDto } from 'src/common/common.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,8 +25,13 @@ export class UsersService {
     });
   }
 
-  async getAllUsers() {
-    return await this.prisma.user.findMany({});
+  async getAllUsers(paginationDto: PaginationDto) {
+    const { page, limit } = paginationDto;
+
+    return await this.prisma.user.findMany({
+      skip: (+page - 1) * +limit,
+      take: +limit,
+    });
   }
 
   async createUser(userData: CreateUserDto) {
